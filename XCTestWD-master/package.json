@@ -1,0 +1,47 @@
+{
+  "name": "xctestwd",
+  "version": "1.3.27",
+  "description": "Swift implementation of WebDriver server for iOS that runs on Simulator/iOS devices.",
+  "keywords": [
+    "iOS",
+    "xctest"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/macacajs/xctestwd.git"
+  },
+  "main": "index.js",
+  "dependencies": {
+    "ios-utils": "~1.0.0",
+    "macaca-doctor": "^2.0.4",
+    "macaca-utils": "^1.0.0",
+    "request": "~2.69.0",
+    "shelljs": "^0.7.8",
+    "webdriver-dfn-error-code": "~1.0.1",
+    "xcode": "^0.8.9",
+    "xctestwd-frameworks-9.1": "^1.0.1",
+    "xctestwd-frameworks-9.2": "^1.0.0",
+    "xctestwd-frameworks-93": "^1.0.0",
+    "xlogger": "~1.0.0"
+  },
+  "devDependencies": {
+    "co-mocha": "*",
+    "eslint": "^4.13.0",
+    "eslint-plugin-mocha": "^4.11.0",
+    "git-contributor": "^1.0.0",
+    "istanbul": "*",
+    "mocha": "*",
+    "pre-commit": "*"
+  },
+  "pre-commit": [
+    "lint"
+  ],
+  "scripts": {
+    "test": "mocha",
+    "lint": "eslint . --fix",
+    "install": "node ./scripts/install.js",
+    "contributor": "git-contributor"
+  },
+  "site": "https://macacajs.github.io",
+  "license": "MIT"
+}

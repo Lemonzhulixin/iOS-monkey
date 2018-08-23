@@ -1,0 +1,126 @@
+iOS monkey
+
+环境：xcode8.3及以上，iOS9.0及以上
+
+1.Homebrew 安装：
+$ xcode-select –install
+$ ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)
+
+2.node.js 安装
+$ brew install node
+
+3.安装 usbmuxd 以便于通过 USB 通道测试 iOS 真机
+$ brew install usbmuxd
+
+4.应用中如含有 WebView，请安装 ios-webkit-debug-proxy
+$ brew install ios-webkit-debug-proxy
+
+5.安装 carthage 来构建 Macaca XCTestWD
+$ brew install carthage
+
+6.获取monkey脚本：
+$ git clone https://github.com/zhangzhao4444/Fastmonkey.git
+
+7.先定位到XCTestWD-master下
+$ cd /Users/xxxxx/Fastmonkey/XCTestWD-master
+
+8.cartfile安装第三方库
+$ carthage update
+
+9.配置XCTestWD.xcodeproj
+Xcode打开XCTestWD.xcodeproj，首先是XCTestWD->General->Signing->Team,把开发者账号设置好，XCTestWDUITests->General->Signing->Team也同样设置（使用appleid@quvideo.com这个账号就行）
+
+10.在xcode里把XCTestWD->Build Setting->Header Search Paths和XCTestWD->Build Setting->Objective-C Bridging Header中，把里面的XCTestWD/XCTestWD-Bridging-Header.h删掉
+
+11.monkey配置
+ a.XCTestWDMonkey.swift需手动添加到server目录下
+  左侧选择XTestWDUITests->server，File->Add Files to "XCTestWD"->选XCTestWDMonkey.swift->add
+
+ b.配置待测app bundleid：
+XCTestWDUITests->server->XCTestWDMonkey.swift ：
+ public class XCTestWDMonkey {
+    func startMonkey() -> Int {
+        let bundleID = "com.quvideo.SlidePlus”//设置app bundleid
+
+c.配置monkey参数：
+XCTestWDUITests->server->controllers->Monkey.swift：
+
+    let elapsedTime = 7200   //设定跑monkey n秒后退出,0表示不生效
+    let actionMax = 0    //设定跑monkey n个action后退出     （elapsedtime 与actionmax 二选一）
+    let throttle = 0 * 500    //  randomize_throttle=false，则每个action之间 sleep throttle（ n个毫秒）
+    let randomize_throttle = false    // randomize_throttle=true，则每个action之间 sleep  ramdom(throttle) 个毫秒
+ß
+12.执行
+a.打开一个终端：$ iproxy 8001 8001 serialid:5214866ccb9342f87f4c2aab093c25f7e252fd85
+b.Xcode中选择XCTestWDuitest->你的测试设备，点击product->test，看到控制台log里有 XCTestWDSetup->http://localhost:8001，表示xctestwd服务启动成功
+c.再打开一个终端：
+$ curl -X POST -H "Content-Type:application/json" \
+              -d "{\"desiredCapabilities\":{\"deviceName\”:\”你的设备名\”,\”platformName\":\"iOS\", \"bundleId\”:\”待测试的app bundleid\”\”autoAcceptAlerts\":\"false\"}}" \
+			  http://127.0.0.1:8001/wd/hub/monkey
+
+
+13.其他
+
+多设备运行：iproxy 8001 8001 serialid xxxx
+
+1. 增加跳过server 跳过发请求机制，运行xctestwduitest 直接启动待测app直接跑monkey XCTestWDMonkey.swift
+public class XCTestWDMonkey {
+
+    func swiftmonkey() -> Int {
+
+        let bundleID = "com.pandatv.test.meizi"      //修改bundleid 为待测app 即可
+
+        var app : XCUIApplication!
+        var session : XCTestWDSession!
+        let path :String? = nil
+        app = XCUIApplication.init(privateWithPath: path, bundleID: bundleID)!
+        app!.launch()
+XCTextWDRunner.swift
+class XCTextWDRunner: XCTestCase {
+    var serverMode = true                  // true 为原server 请求模式， false 为直接启动跑monkey模式
+    var server: XCTestWDServer?
+    var monkey: XCTestWDMonkey?
+
+
+for xcode9 and iOS 11:
+1.获取monkey脚本：
+$ git clone https://github.com/zhangzhao4444/Fastmonkey.git
+
+2.先定位到XCTestWD-master下
+$ cd /Users/xxxxx/Fastmonkey/XCTestWD-master
+
+3.cartfile安装第三方库
+$ carthage update --no-use-binaries
+
+4.配置XCTestWD.xcodeproj
+Xcode打开XCTestWD.xcodeproj，首先是XCTestWD->General->Signing->Team,把开发者账号设置好，XCTestWDUITests->General->Signing->Team也同样设置（使用appleid@quvideo.com这个账号就行）
+
+5.在xcode里把XCTestWD->Build Setting->Header Search Paths和XCTestWD->Build Setting->Objective-C Bridging Header中，把里面的XCTestWD/XCTestWD-Bridging-Header.h删掉
+
+6.将XCTestWDMonkey.swift文件拖拽到Xcode中的server文件下
+
+7.将XCTestWDApplication.m和XCTestWDApplication.m文件拖拽到Xcode中的PrivateHeaders文件下 
+
+8.需要在XCTestWDUITests-Bridging-Header.h文件中添加
+ #import "XCTestWDApplication.h"
+
+
+curl -X POST -H "Content-Type:application/json" -d "{\"desiredCapabilities\":{\"deviceName\":\"6s2050\",\"platformName\":\"iOS\", \"bundleId\":\"com.quvideo.SlidePlus\",\"autoAcceptAlerts\":\"false\"}}"  http://127.0.0.1:8001/wd/hub/monkey
+
+curl -X POST -H "Content-Type:application/json" -d "{\"desiredCapabilities\":{\"deviceName\":\"iPhone5S2077\",\"platformName\":\"iOS\", \"bundleId\":\"com.quvideo.XiaoYingPro\”,\”autoAcceptAlerts\":\"false\"}}"  http://127.0.0.1:8001/wd/hub/monkey
+
+curl -X POST -H "Content-Type:application/json" -d "{\"desiredCapabilities\":{\"deviceName\":\"6s2050\",\"platformName\":\"iOS\", \"bundleId\":\"com.quvideo.VISO\",\"autoAcceptAlerts\":\"false\"}}"  http://127.0.0.1:8001/wd/hub/monkey
+
+
+配置好XCTestWDMonkey.swift 直接执行下面命令即可
+
+
+xcodebuild -project /Users/iOS_Team/Desktop/Fastmonkey/XCTestWD-master/XCTestWD/XCTestWD.xcodeproj \
+           -scheme XCTestWDUITests \
+           -destination 'platform=iOS,name=iPhone5S2077' \
+           XCTESTWD_PORT=8001 \
+           clean test
+
+
+
+
