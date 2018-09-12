@@ -56,7 +56,7 @@ def monkey(devicename):
         print('error message:', msg)
         raise
 
-
+#for AutoMonkey4IOS
 # def monkey():
 #     cmd_path = 'cd /Users/iOS_Team/.jenkins/workspace/iOS_Monkey_VivaVideo/AutoMonkey4IOS'
 #     cmd_monkey = './start_monkey.sh'
@@ -98,7 +98,7 @@ if __name__ == '__main__':
     file_format1 = [".ips"]  # 导出的crash文件后缀
     file_format2 = [".crash"]  # 解析后的crash文件后缀
 
-    reportPath = PATH("/Users/xxxx/Downloads/iOS_Monkey_VivaVideo/AutoMonkey4IOS/CrashInfo/")
+    reportPath = PATH("/Users/xxxx/Desktop/iOS-monkey/CrashInfo/")
     beforePath = os.path.join(reportPath + '/Before')
     if not os.path.exists(beforePath):
         os.makedirs(beforePath)
@@ -113,15 +113,17 @@ if __name__ == '__main__':
     os.system(exportReport)  # 导出设备中的crash
 
     print("============开始过滤并解析待测app相关crashreport==========")
+    # .bash_profile中配置以下环境，记得重启下mac
+    # DEVELOPER_DIR="/Applications/XCode.app/Contents/Developer"
+    # export DEVELOPER_DIR
     f = FileOperate.FileFilt()
     f.FindFile(find_str, file_format1, beforePath)
     for file in f.fileList:
         inputFile = os.path.abspath(file)  # 绝对路径
         # print(inputFile)
         analysisPath = PATH("/Users/xxxx/Desktop/iOS-monkey/iOSCrashAnalysis/")
-        cmd_export = 'export DEVELOPER_DIR="/Applications/XCode.app/Contents/Developer"'
         cmd_analysis = 'python3 ' + analysisPath + '/BaseIosCrash.py' + ' -i ' + inputFile
-        # print(cmd_analysis)
+        print(cmd_analysis)
         os.system(cmd_analysis)
 
     # 移动解析完成的crashreport到新的文件夹
@@ -131,10 +133,3 @@ if __name__ == '__main__':
     # 删除所有解析之前的crash文件，若不想删除，注掉即可
     print("============删除所有解析之前的crash文件==========")
     f.DelFolder(beforePath)
-
-
-
-
-
-
-
