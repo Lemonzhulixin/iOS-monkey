@@ -154,10 +154,10 @@ if __name__ == '__main__':
 
 ```
 
-# 5.Jenkins 部署定时任务
+## 5.Jenkins 部署定时任务
 
 
-# 6.踩了个小坑
+## 6.踩了个小坑
 ```javascript
 #安装app
 def install(path,file_format,duid):
@@ -172,7 +172,7 @@ def install(path,file_format,duid):
 
 这里ipa_path因为开发自动化打包的脚本生成的文件夹是带有空格的（eg.xxxx 2018-03-30 22-04-54），所以在组装命令的时候，加了俩双引号
 
-# 7.待优化
+## 7.待优化
  a.自动获取连接的真机设备名及duid
  b.多设备执行
 
