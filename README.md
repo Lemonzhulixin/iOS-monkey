@@ -6,12 +6,12 @@
  python：python3.6
 
 ## 2.备注
- a.FastMonkey相关问题参照@zhangzhao_lenovo 大神的帖子：https://testerhome.com/topics/9524，此处不再赘述！
- b.相关扫盲贴：
-*https://testerhome.com/topics/9810        
-*http://cdn2.jianshu.io/p/2cbdb50411ae
- c.ios-deploy，用于命令安装iOS app ，https://www.npmjs.com/package/ios-deploy
- d.FastMonkey设置为非sevrer模式
+ *a.FastMonkey相关问题参照@zhangzhao_lenovo 大神的帖子：https://testerhome.com/topics/9524，此处不再赘述！
+ *b.相关扫盲贴：
+   *https://testerhome.com/topics/9810        
+  *http://cdn2.jianshu.io/p/2cbdb50411ae
+ *c.ios-deploy，用于命令安装iOS app ，https://www.npmjs.com/package/ios-deploy
+ *d.FastMonkey设置为非sevrer模式
 
 ## 3.简单说明下脚本流程
 自动化打包机打包->定时检测最新安装包->自动安装待测app->执行monkey->解析crash report
