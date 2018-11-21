@@ -43,7 +43,7 @@ def install(path,file_format,duid):
         raise
 
 def monkey(devicename):
-    cmd_monkey = "xcodebuild -project /Users/xxxx/Desktop/iOS-monkey/XCTestWD-master/XCTestWD/XCTestWD.xcodeproj " \
+    cmd_monkey = "xcodebuild -project /Users/zhulixin/Desktop/iOS-monkey/XCTestWD/XCTestWD/XCTestWD.xcodeproj " \
                  "-scheme XCTestWDUITests " \
                  "-destination 'platform=iOS,name=" + devicename + "' " + \
                  "XCTESTWD_PORT=8001 " + \
@@ -56,39 +56,23 @@ def monkey(devicename):
         print('error message:', msg)
         raise
 
-#for AutoMonkey4IOS
-# def monkey():
-#     cmd_path = 'cd /Users/iOS_Team/.jenkins/workspace/iOS_Monkey_VivaVideo/AutoMonkey4IOS'
-#     cmd_monkey = './start_monkey.sh'
-
-#     print(cmd_path)
-
-#     try:
-#         os.system(cmd_path)
-#     except Exception as msg:
-#         print('error message:', msg)
-#         raise
-
-#     time.sleep(3)
-
-#     print(cmd_monkey)
-#     try:
-#         # os.system(cmd_monkey)
-#         subprocess.run(cmd_monkey, shell=True)
-#         # monkeylog = open('/Users/iOS_Team/QA/Monkey/AutoMonkey4IOS/output/' + 'monkeylog.txt', 'w')
-#         # subprocess.Popen(cmd_monkey, shell=True, stdout=monkeylog)
-#     except Exception as msg:
-#         print('error message:', msg)
-#         raise
-
-
 if __name__ == '__main__':
-    path = "/Users/iOS_Team/XiaoYing_AutoBuild/XiaoYing/XiaoYingApp/fastlane/"
+    # cmd_login = 'sshpass -p ios ssh iOS_Team@10.0.35.21'
+    cmd_copy = 'sshpass -p ios scp -r iOS_Team@10.0.35.21:/Users/iOS_Team/XiaoYing_AutoBuild/XiaoYing/XiaoYingApp/fastlane/output_ipa/ ~/Desktop'
+
+    # print('登录到远程pc')
+    # os.system(cmd_login)
+
+    print('远程复制ipa文件到本地')
+    os.system(cmd_copy)
+
+    path = "/Users/zhulixin/Desktop/output_ipa/"
     file_format = ['.ipa']
-    duid = '4c4ebeb44e5312c50c54b274a9145ebf89dce686'
-    devicename = '5s2094'
+    duid = 'abab40339eaf2274aaf1ef068e11d6f85d84aae1'
+    devicename = 'iPhone2146'
     ipa = get_ipa(path, file_format)
     print(ipa)
+    
     install(path, file_format, duid)
     print("start monkey")
     monkey(devicename)
@@ -98,7 +82,7 @@ if __name__ == '__main__':
     file_format1 = [".ips"]  # 导出的crash文件后缀
     file_format2 = [".crash"]  # 解析后的crash文件后缀
 
-    reportPath = PATH("/Users/xxxx/Desktop/iOS-monkey/CrashInfo/")
+    reportPath = PATH("/Users/zhulixin/Desktop/iOS-monkey/CrashInfo/")
     beforePath = os.path.join(reportPath + '/Before')
     if not os.path.exists(beforePath):
         os.makedirs(beforePath)
@@ -113,20 +97,25 @@ if __name__ == '__main__':
     os.system(exportReport)  # 导出设备中的crash
 
     print("============开始过滤并解析待测app相关crashreport==========")
-    # .bash_profile中配置以下环境，记得重启下mac
-    # DEVELOPER_DIR="/Applications/XCode.app/Contents/Developer"
-    # export DEVELOPER_DIR
     f = FileOperate.FileFilt()
     f.FindFile(find_str, file_format1, beforePath)
+
+    if len(f.fileList) > 0:
+        mailpath = '/Users/zhulixin/Desktop/UItest/iOS/Base/crash_mail.py'
+        cmd_mail = 'python ' + mailpath + ' "fail" "VivaVideo iOS UI autotest failed" "出现了新的crash，查看地址: http://10.0.35.21:8080/ ，路径:' + afterPath + '"'
+        print('发送邮件')
+        os.system(cmd_mail)
+
     for file in f.fileList:
         inputFile = os.path.abspath(file)  # 绝对路径
-        # print(inputFile)
-        analysisPath = PATH("/Users/xxxx/Desktop/iOS-monkey/iOSCrashAnalysis/")
+        analysisPath = PATH("/Users/zhulixin/Desktop/iOS-monkey/iOSCrashAnalysis/")
         cmd_analysis = 'python3 ' + analysisPath + '/BaseIosCrash.py' + ' -i ' + inputFile
         print(cmd_analysis)
         os.system(cmd_analysis)
 
     # 移动解析完成的crashreport到新的文件夹
+    f.MoveFile(find_str, file_format1, beforePath, afterPath)
+
     f.MoveFile(find_str, file_format2, beforePath, afterPath)
     print("============crashreport解析完成==========")
 
