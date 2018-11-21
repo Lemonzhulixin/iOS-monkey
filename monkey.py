@@ -102,7 +102,7 @@ if __name__ == '__main__':
 
     if len(f.fileList) > 0:
         mailpath = '/Users/zhulixin/Desktop/UItest/iOS/Base/crash_mail.py'
-        cmd_mail = 'python ' + mailpath + ' "fail" "VivaVideo iOS UI autotest failed" "出现了新的crash，查看地址: http://10.0.35.21:8080/ ，路径:' + afterPath + '"'
+        cmd_mail = 'python ' + mailpath + ' "fail" "VivaVideo iOS Monkey test failed" "出现了新的crash，查看地址: http://10.0.35.21:8080/ ，路径:' + afterPath + '"'
         print('发送邮件')
         os.system(cmd_mail)
 
