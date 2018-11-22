@@ -57,8 +57,8 @@ def monkey(devicename):
         raise
 
 if __name__ == '__main__':
-    # cmd_login = 'sshpass -p ios ssh iOS_Team@10.0.35.21'
-    cmd_copy = 'sshpass -p ios scp -r iOS_Team@10.0.35.21:/Users/iOS_Team/XiaoYing_AutoBuild/XiaoYing/XiaoYingApp/fastlane/output_ipa/ ~/Desktop'
+    # cmd_login = 'sshpass -p ios ssh xxxx@10.0.35.21'
+    cmd_copy = 'sshpass -p ios scp -r xxxx@10.0.35.21:/Users/iOS_Team/XiaoYing_AutoBuild/XiaoYing/XiaoYingApp/fastlane/output_ipa/ ~/Desktop'
 
     # print('登录到远程pc')
     # os.system(cmd_login)
