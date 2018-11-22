@@ -49,7 +49,7 @@ if __name__ == "__main__":
     find_str = 'XiaoYing-'
     file_format = '.ips'
     b = FileFilt()
-    b.FindFile(find_str,file_format, path="/Users/xxxx/new")
+    b.FindFile(find_str,file_format, path="/Users/zhulixin/new")
     for file in b.fileList:
         filepath = os.path.abspath(file) #绝对路径
         print(filepath)

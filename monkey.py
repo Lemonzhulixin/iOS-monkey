@@ -72,7 +72,7 @@ if __name__ == '__main__':
     devicename = 'iPhone2146'
     ipa = get_ipa(path, file_format)
     print(ipa)
-    
+
     install(path, file_format, duid)
     print("start monkey")
     monkey(devicename)
@@ -101,14 +101,14 @@ if __name__ == '__main__':
     f.FindFile(find_str, file_format1, beforePath)
 
     if len(f.fileList) > 0:
-        mailpath = '/Users/zhulixin/Desktop/UItest/iOS/Base/crash_mail.py'
-        cmd_mail = 'python ' + mailpath + ' "fail" "VivaVideo iOS Monkey test failed" "出现了新的crash，查看地址: http://10.0.35.21:8080/ ，路径:' + afterPath + '"'
+        mailpath = '/Users/zhulixin/Desktop/iOS-monkey/crash_mail.py'
+        cmd_mail = 'python ' + mailpath + ' "fail" "VivaVideo iOS Monkey test failed" "出现了新的crash，查看地址: http://10.0.35.21:8080/job/iOS_Monkey_VivaVideo/ws/CrashInfo/After/"'
         print('发送邮件')
         os.system(cmd_mail)
 
     for file in f.fileList:
         inputFile = os.path.abspath(file)  # 绝对路径
-        analysisPath = PATH("/Users/zhulixin/Desktop/iOS-monkey/iOSCrashAnalysis/")
+        analysisPath = "/Users/zhulixin/Desktop/iOS-monkey/iOSCrashAnalysis/"
         cmd_analysis = 'python3 ' + analysisPath + '/BaseIosCrash.py' + ' -i ' + inputFile
         print(cmd_analysis)
         os.system(cmd_analysis)

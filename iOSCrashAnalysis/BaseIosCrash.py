@@ -28,7 +28,7 @@ def analyzeCrashLog(inputfile, outputfile):
 
     path = "'" + path + "'"
     print(path)
-    analysisPath = PATH("../iOSCrashAnalysis/")
+    analysisPath = '/Users/zhulixin/Desktop/iOS-monkey/iOSCrashAnalysis'
     outname = os.path.splitext(inputfile)[0]
 
     ttt = subprocess.getoutput(
