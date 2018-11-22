@@ -57,8 +57,8 @@ def monkey(devicename):
         raise
 
 if __name__ == '__main__':
-    # cmd_login = 'sshpass -p ios ssh xxxx@10.0.35.21'
-    cmd_copy = 'sshpass -p ios scp -r xxxx@10.0.35.21:/Users/iOS_Team/XiaoYing_AutoBuild/XiaoYing/XiaoYingApp/fastlane/output_ipa/ ~/Desktop'
+    # cmd_login = 'sshpass -p ios ssh iOS_Team@10.0.35.21'
+    cmd_copy = 'sshpass -p ios scp -r iOS_Team@10.0.35.21:/Users/iOS_Team/XiaoYing_AutoBuild/XiaoYing/XiaoYingApp/fastlane/output_ipa/ ~/Desktop'
 
     # print('登录到远程pc')
     # os.system(cmd_login)
@@ -82,12 +82,12 @@ if __name__ == '__main__':
     file_format1 = [".ips"]  # 导出的crash文件后缀
     file_format2 = [".crash"]  # 解析后的crash文件后缀
 
-    reportPath = PATH("/Users/zhulixin/Desktop/iOS-monkey/CrashInfo/")
-    beforePath = os.path.join(reportPath + '/Before')
+    reportPath = "/Users/zhulixin/Desktop/iOS-monkey/CrashInfo/"
+    beforePath = os.path.join(reportPath + 'temp')
     if not os.path.exists(beforePath):
         os.makedirs(beforePath)
 
-    afterPath = os.path.join(reportPath + '/After')
+    afterPath = os.path.join(reportPath)
     if not os.path.exists(afterPath):
         os.makedirs(afterPath)
 
@@ -99,17 +99,18 @@ if __name__ == '__main__':
     print("============开始过滤并解析待测app相关crashreport==========")
     f = FileOperate.FileFilt()
     f.FindFile(find_str, file_format1, beforePath)
+    print(f.fileList)
 
     if len(f.fileList) > 0:
         mailpath = '/Users/zhulixin/Desktop/iOS-monkey/crash_mail.py'
-        cmd_mail = 'python ' + mailpath + ' "fail" "VivaVideo iOS Monkey test failed" "出现了新的crash，查看地址: http://10.0.35.21:8080/job/iOS_Monkey_VivaVideo/ws/CrashInfo/After/"'
+        cmd_mail = 'python ' + mailpath + ' "fail" "VivaVideo iOS Monkey test failed" "出现了新的crash，查看地址: http://10.0.35.21:8080/job/iOS_Monkey_VivaVideo/ws/CrashInfo/"'
         print('发送邮件')
         os.system(cmd_mail)
 
     for file in f.fileList:
         inputFile = os.path.abspath(file)  # 绝对路径
         analysisPath = "/Users/zhulixin/Desktop/iOS-monkey/iOSCrashAnalysis/"
-        cmd_analysis = 'python3 ' + analysisPath + '/BaseIosCrash.py' + ' -i ' + inputFile
+        cmd_analysis = 'python3 ' + analysisPath + 'BaseIosCrash.py' + ' -i ' + inputFile
         print(cmd_analysis)
         os.system(cmd_analysis)
 
@@ -122,3 +123,4 @@ if __name__ == '__main__':
     # 删除所有解析之前的crash文件，若不想删除，注掉即可
     print("============删除所有解析之前的crash文件==========")
     f.DelFolder(beforePath)
+    os.rmdir(beforePath)
