@@ -9,8 +9,8 @@ from email.mime.application import MIMEApplication
 from email.mime.text import MIMEText
 
 #邮件配置
-MAIL_FROM_ADDRESS = "xxx@quvideo.com"
-MAIL_PASSWORD = "xxxxx"
+MAIL_FROM_ADDRESS = "appleid@quvideo.com"
+MAIL_PASSWORD = "XIAOying0210"
 SMTP_SERVER = "smtp.exmail.qq.com"
 
 #接收邮件的邮箱
