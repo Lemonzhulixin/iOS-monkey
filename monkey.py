@@ -42,7 +42,7 @@ if __name__ == '__main__':
 
     print('远程复制ipa文件到本地')
     start_time = time.strftime('%Y%m%d%H%M%S', time.localtime())
-    cmd_copy = 'sshpass -p ios scp -r iOS_Team@10.0.35.21:/Users/iOS_Team/XiaoYing_AutoBuild/XiaoYing/XiaoYingApp/fastlane/output_ipa/ ~/Desktop'
+    cmd_copy = 'sshpass -p ios scp -r iOS_Team@10.0.35.xxx:/Users/iOS_Team/XiaoYing_AutoBuild/XiaoYing/XiaoYingApp/fastlane/output_ipa/ ~/Desktop'
     os.system(cmd_copy)
 
     print('安装ipa测试包到设备')
