@@ -1,20 +1,8 @@
 ## 1228  新增内容
  1.自动获取真机设备名及duid
  2.iOS crashreport解析优化及测试结果DB存储
- 3.Web页面结果展示及支持crash log下载
-
-### 设备列表
-![](/uploads/photo/2018/0ae9986f-7048-446b-9fc1-69a5595e2c3e.png!large)
-
-### 测试包详情
-![](/uploads/photo/2018/007444ca-fef2-4656-95eb-85f0926a0003.png!large)
-
-### 测试报告
-![](/uploads/photo/2018/f9c8e68a-dc4b-4b9e-89bf-b19a3a77b2fa.png!large)
-
-### 结果展示
-![](/uploads/photo/2018/fa9ea1d2-e815-45b3-8450-42b6a6957379.png!large)
-
+ 3.测试失败邮件通知
+ 4.Web页面结果展示及支持crash log下载
 
 ## 1.环境
  Mac mini：10.12.6 
@@ -24,13 +12,13 @@
 ## 2.备注
  a.FastMonkey相关问题参照@zhangzhao_lenovo 大神的帖子：https://testerhome.com/topics/9524，此处不再赘述！
  b.相关扫盲贴：
-*https://testerhome.com/topics/9810        
-*http://cdn2.jianshu.io/p/2cbdb50411ae
+   https://testerhome.com/topics/9810        
+   http://cdn2.jianshu.io/p/2cbdb50411ae
  c.ios-deploy，用于命令安装iOS app ，https://www.npmjs.com/package/ios-deploy
  d.FastMonkey设置为非sevrer模式
 
 ## 3.简单说明下脚本流程
-自动化打包机打包->定时检测最新安装包->自动安装待测app->执行monkey->解析crash report
+自动化打包机打包->定时检测最新安装包->自动安装待测app->执行monkey->解析crashreport->DB存储->Web展示
 
 ## 4.脚本：
 https://github.com/Lemonzhulixin/iOS-monkey.git
@@ -190,8 +178,6 @@ if __name__ == '__main__':
 ```
 
 ## 5.Jenkins 部署定时任务
-![](/uploads/photo/2018/748920da-6668-4581-906f-1198322fafaa.png!large)
-![](/uploads/photo/2018/e0622e7f-0a7b-4dd8-ade9-4b3774352142.png!large)
 
 ## 6.待优化
      a.多设备执行
