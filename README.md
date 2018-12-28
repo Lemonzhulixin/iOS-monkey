@@ -1,8 +1,8 @@
-## 1228  新增内容
- ### 1.自动获取真机设备名及duid
- ### 2.iOS crashreport解析优化及测试结果DB存储
- ### 3.测试失败邮件通知
- ### 4.Web页面结果展示及支持crash log下载
+## 1228 新增内容
+    a.自动获取真机设备名及duid
+    b.iOS crashreport解析优化及测试结果DB存储
+    c.测试失败邮件通知
+    d.Web页面结果展示及支持crash log下载
 
 ## 1.环境
    Mac mini：10.12.6 
