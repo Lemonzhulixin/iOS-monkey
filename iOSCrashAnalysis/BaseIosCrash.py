@@ -28,11 +28,11 @@ def analyzeCrashLog(inputfile, outputfile):
 
     path = "'" + path + "'"
     print(path)
-    analysisPath = '/Users/zhulixin/Desktop/iOS-monkey/iOSCrashAnalysis'
+    analysisPath = '/Users/iOS_Team/.jenkins/workspace/iOS_Monkey_VivaVideo/iOSCrashAnalysis/'
     outname = os.path.splitext(inputfile)[0]
 
     ttt = subprocess.getoutput(
-        analysisPath + '/symbolicatecrash ' + inputfile + ' -d ' + path + ' -o ' + outname + '.crash')
+        analysisPath + 'symbolicatecrash ' + inputfile + ' -d ' + path + ' -o ' + outname + '.crash')
     print(ttt)
 
 

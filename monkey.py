@@ -1,49 +1,19 @@
 # -*- coding: UTF8 -*-
+from iOSCrashAnalysis.CrashExport import CrashExport
+from iOSCrashAnalysis.getPakeage import getPakeage
+from iOSCrashAnalysis import mysql_monkey
+from iOSCrashAnalysis.FileOperate import *
+from iOSCrashAnalysis.BaseIosPhone import get_ios_devices,get_ios_PhoneInfo
+from iOSCrashAnalysis.FileOperate import FileFilt
 
-import os
-import time
-import subprocess
-from iOSCrashAnalysis import FileOperate
 
 
 PATH = lambda p: os.path.abspath(
     os.path.join(os.path.dirname(__file__), p)
 )
 
-
-def dirlist(path, allfile):
-    filelist = os.listdir(path)
-    for filename in filelist:
-        filepath = os.path.join(path, filename)
-        if os.path.isdir(filepath):
-            dirlist(filepath, allfile)
-        else:
-            allfile.append(filepath)
-    return allfile
-
-def get_ipa(path,file_format):
-    files = dirlist(path, [])
-    ipa_list = []
-    for ipa in files:
-        if (os.path.splitext(ipa)[1] in file_format):
-            t = os.path.getctime(ipa)
-            ipa_list.append([ipa, t])
-    order = sorted(ipa_list, key=lambda e: e[1], reverse=True)
-    ipa_path = order[0][0]
-    return ipa_path
-
-def install(path,file_format,duid):
-    ipa_path = get_ipa(path,file_format)
-    cmd = 'ios-deploy –r -b ' + '"' + ipa_path + '"' + ' -i ' + duid
-    print('安装待测试的app', cmd)
-    try:
-        os.system(cmd)
-    except Exception as msg:
-        print('error message:', msg)
-        raise
-
 def monkey(devicename):
-    cmd_monkey = "xcodebuild -project /Users/zhulixin/Desktop/iOS-monkey/XCTestWD/XCTestWD/XCTestWD.xcodeproj " \
+    cmd_monkey = "xcodebuild -project /Users/iOS_Team/.jenkins/workspace/iOS_Monkey_VivaVideo/XCTestWD/XCTestWD/XCTestWD.xcodeproj " \
                  "-scheme XCTestWDUITests " \
                  "-destination 'platform=iOS,name=" + devicename + "' " + \
                  "XCTESTWD_PORT=8001 " + \
@@ -57,70 +27,126 @@ def monkey(devicename):
         raise
 
 if __name__ == '__main__':
-    # cmd_login = 'sshpass -p ios ssh xxxx@10.0.35.21'
-    cmd_copy = 'sshpass -p ios scp -r xxxx@10.0.35.21:/Users/iOS_Team/XiaoYing_AutoBuild/XiaoYing/XiaoYingApp/fastlane/output_ipa/ ~/Desktop'
+    print('获取设备信息')
+    # dev_list = []
+    # devices = get_ios_devices()
+    # for i in range(len(devices)):
+    #     duid = get_ios_devices()[i]
+    #     dev = get_ios_PhoneInfo(duid)
+    #     dev_list.append(dev)
+    # print(dev_list)
 
-    # print('登录到远程pc')
-    # os.system(cmd_login)
+    deviceName = 'iPhone2140'
+    deviceID = 'e80251f0e66967f51add3ad0cdc389933715c3ed'
+    release = '9.3.2'
 
     print('远程复制ipa文件到本地')
+    start_time = time.strftime('%Y%m%d%H%M%S', time.localtime())
+    cmd_copy = 'sshpass -p ios scp -r iOS_Team@10.0.35.21:/Users/iOS_Team/XiaoYing_AutoBuild/XiaoYing/XiaoYingApp/fastlane/output_ipa/ ~/Desktop'
     os.system(cmd_copy)
 
-    path = "/Users/zhulixin/Desktop/output_ipa/"
+    print('安装ipa测试包到设备')
+    path = "/Users/iOS_Team/Desktop/output_ipa/"
     file_format = ['.ipa']
-    duid = 'abab40339eaf2274aaf1ef068e11d6f85d84aae1'
-    devicename = 'iPhone2146'
-    ipa = get_ipa(path, file_format)
-    print(ipa)
+    ipa_path = getPakeage().get_ipa(path, file_format)
+    getPakeage().install(path, file_format, deviceID)
 
-    install(path, file_format, duid)
-    print("start monkey")
-    monkey(devicename)
+    print("启动monkey")
+    monkey(deviceName)
 
-    print("============开始导出crashreport==========")
+    print('解析crash report')
     find_str = 'XiaoYing-'  # 待测app crashreport文件关键字
     file_format1 = [".ips"]  # 导出的crash文件后缀
     file_format2 = [".crash"]  # 解析后的crash文件后缀
+    CrashExport(deviceID, find_str, file_format1, file_format2)
+    end_time = time.strftime('%Y%m%d%H%M%S', time.localtime())
 
-    reportPath = "/Users/zhulixin/Desktop/iOS-monkey/CrashInfo/"
-    beforePath = os.path.join(reportPath + 'temp')
-    if not os.path.exists(beforePath):
-        os.makedirs(beforePath)
+    print('测试结果数据解析并DB存储')
+    loacl_time = time.strftime('%Y%m%d%H%M%S', time.localtime())
+    iOS_tag = 'iOS_' + loacl_time
 
-    afterPath = os.path.join(reportPath)
-    if not os.path.exists(afterPath):
-        os.makedirs(afterPath)
+    print('插入数据到device表')
+    deviceData = {
+        'name': deviceName,
+        'serial_number': deviceID,
+        'version': release,
+        'status': 1,
+        'tag': 'iOS'
+    }
 
-    # 导出设备中的所有crash文件
-    exportReport = 'idevicecrashreport -u ' + duid + ' ' + beforePath + '/'
-    print(exportReport)
-    os.system(exportReport)  # 导出设备中的crash
+    print('插入数据到apk信息表')
+    # ipa_path = '/Users/zhulixin/Desktop/output_ipa/day_inke_release_xiaoying.ipa'
+    ipainfo = getPakeage().getIpaInfo(ipa_path)
+    apkData = {
+        'app_name': ipainfo[0],
+        'ver_name': ipainfo[2],
+        'ver_code': ipainfo[3],
+        'file_name': 'day_inke_release_xiaoying.ipa',
+        'file_path': ipa_path,
+        'build_time': start_time,
+        'tag': iOS_tag
+    }
 
-    print("============开始过滤并解析待测app相关crashreport==========")
-    f = FileOperate.FileFilt()
-    f.FindFile(find_str, file_format1, beforePath)
-    print(f.fileList)
+    print('插入数据到task表')
+    taskData = {
+        'start_time': start_time,
+        'end_time': end_time,
+        'app_name': ipainfo[0],
+        'devices': 1,
+        'test_count': None,
+        'pass_count': None,
+        'fail_count': None,
+        'passing_rate': None,
+        'tag': iOS_tag,
+        'info': None
+    }
 
-    if len(f.fileList) > 0:
-        mailpath = '/Users/zhulixin/Desktop/iOS-monkey/crash_mail.py'
-        cmd_mail = 'python ' + mailpath + ' "fail" "VivaVideo iOS Monkey test failed" "出现了新的crash，查看地址: http://10.0.35.21:8080/job/iOS_Monkey_VivaVideo/ws/CrashInfo/"'
-        print('发送邮件')
-        os.system(cmd_mail)
+    print('插入数据到results表')
+    # f = FileFilt()
+    # f.FindFile(find_str, file_format1, './CrashInfo/')
+    # crash_count = len(f.fileList)
+    # result = 1
+    # if crash_count:
+    #     result = 0
 
-    for file in f.fileList:
-        inputFile = os.path.abspath(file)  # 绝对路径
-        analysisPath = "/Users/zhulixin/Desktop/iOS-monkey/iOSCrashAnalysis/"
-        cmd_analysis = 'python3 ' + analysisPath + 'BaseIosCrash.py' + ' -i ' + inputFile
-        print(cmd_analysis)
-        os.system(cmd_analysis)
+    resultData = {
+        'result_id': start_time + '-monkey-' + ipainfo[0],
+        'start_time': start_time,
+        'end_time': end_time,
+        'device_name': deviceName,
+        'apk_id': None,
+        'result': None,
+        'status': None,
+        'CRASHs': None,
+        'ANRs': None,
+        'tag': iOS_tag,
+        'device_log':None,
+        'monkey_log': None,
+        'monkey_loop': None,
+        'cmd':None,
+        'seed': None
+    }
 
-    # 移动解析完成的crashreport到新的文件夹
-    f.MoveFile(find_str, file_format1, beforePath, afterPath)
+    # print('deviceData:', deviceData)
+    # mysql_monkey.insert_record_to_phones(deviceData)
 
-    f.MoveFile(find_str, file_format2, beforePath, afterPath)
-    print("============crashreport解析完成==========")
+    print('apkData:', apkData)
+    mysql_monkey.insert_record_to_apks(apkData)
 
-    # 删除所有解析之前的crash文件，若不想删除，注掉即可
-    print("============删除所有解析之前的crash文件==========")
-    f.DelFolder(beforePath)
-    os.rmdir(beforePath)
+    print('taskData:', taskData)
+    mysql_monkey.insert_record_to_tasks(taskData)
+
+    print('resultData:', resultData)
+    mysql_monkey.insert_record_to_results(resultData)
+
+    print("压缩测试结果并传")
+    f = FileFilt()
+    results_file = f.zip_report(loacl_time, './CrashInfo/', './Results_ZIP/')
+    url = 'http://10.0.32.xxx:5100/api/v1/iOS-monkey'
+    files = {'file': open(results_file, 'rb')}
+    response = requests.post(url, files=files)
+    json = response.json()
+
+    print("删除本次的测试结果")
+    f.DelFolder('./CrashInfo/')
+    print("xxxxxxxxxxxxxxxxxxxxxxxxx Finish Test xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx")
